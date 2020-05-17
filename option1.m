@@ -33,14 +33,7 @@ AxialLoad = 6.8;        % [g]
 LatLoad = 2.5;          % [g]
 
 %% Alloy data (7075)
-E = 71e9;               % [Pa]
-v = 0.33;
-rho = 2.8e3;
-Ftu = 524e6;            % [Pa] ultimate stress (breack)
-Fty = 448e6;            % [Pa] yield stress (non-linear)
-
-%% Titanium data
-
+[rho,E,Ftu,Fty,v] = materials('Al7075');
 
 %% Computation
 Aaxial = (faxial/0.25)^2/E*M*h;
