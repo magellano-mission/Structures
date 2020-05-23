@@ -3,19 +3,29 @@ close all; clear; clc
 %% Adding to path
 addpath(genpath(fileparts(pwd)))
 
-%% Figure Initialization
-set(0,'DefaultFigureUnits', 'normalized');
-set(0,'DefaultFigurePosition', [0 0 1 1]);
-set(0,'DefaultTextFontSize', 18);
-set(0,'DefaultAxesFontSize', 18);
-set(0,'DefaultAxesXGrid', 'on')
-set(0,'DefaultAxesYGrid', 'on')
-set(0,'defaultLegendInterpreter', 'latex');
-set(0,'defaultAxesTickLabelInterpreter', 'latex');
+%% Figure Initialization    
+load('MagellanoColorMap.mat');
+DefaultOrderColor = get(0, 'DefaultAxesColorOrder');
+NewOrderColor = [0.9490    0.4745    0.3137
+                 0.1020    0.6667    0.74120
+                 155/255   155/255   155/255
+                 DefaultOrderColor];  
+             
+set(0,'DefaultFigureColormap', MagellanoColorMap);
+set(0, 'DefaultAxesColorOrder', NewOrderColor);
+set(0,'DefaultLineLineWidth', 2)
+set(0,'DefaultLineMarkerSize', 10)
+set(0, 'DefaultFigureUnits', 'normalized');
+set(0, 'DefaultFigurePosition', [0 0 1 1]);
+set(0, 'DefaultTextFontSize', 18);
+set(0, 'DefaultAxesFontSize', 18);
+set(0, 'DefaultAxesXGrid', 'on')
+set(0, 'DefaultAxesYGrid', 'on')
+set(0, 'defaultLegendInterpreter', 'latex');
+set(0, 'defaultAxesTickLabelInterpreter', 'latex');
 
 %%
 % run('config.m')
-% load('MagellanoColorMap.mat')
 
 %% constants
 g = 9.81;
@@ -33,7 +43,7 @@ AxialLoad = 6.8;        % [g]
 LatLoad = 2.5;          % [g]
 
 %% Alloy data (7075)
-[rho,E,Ftu,Fty,v] = materials('Al7075');
+[rho, E, Ftu, Fty, v] = materials('Al7075');
 
 %% Computation
 Aaxial = (faxial/0.25)^2/E*M*h;
@@ -64,7 +74,7 @@ tyield = Pyield/(Fty*2*R*pi);
 % sizing for higher thickness?
 phi = 1/16*sqrt(R/tlat);
 gamma = 1 - 0.901*(1 - exp(-phi));
-sigmaCR = 0.6*gamma*E*tlat/R;
+sigmaCR = gamma*E/(sqrt(3*(1 - v^2)))*tlat/R;
 A = pi*R^2 - pi*(R - tlat)^2;
 PCR = sigmaCR*A;
 
