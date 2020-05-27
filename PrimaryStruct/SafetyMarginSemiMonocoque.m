@@ -1,4 +1,4 @@
-function [MS] = SafetyMargin(t, R, S, I, E, v, b, Pult)
+function [MS] = SafetyMarginSemiMonoque(t, R, S, I, E, v, b, Pult)
 
 I_skin = pi*R^3*t;
 I_str = I - I_skin;

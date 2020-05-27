@@ -31,34 +31,36 @@ set(0, 'defaultAxesTickLabelInterpreter', 'latex');
 g = 9.81;
 
 %% Spacecraft
-M = 16.5e3;
-faxial = 25;            % [Hz]
-flat = 10;              % [Hz]
+M = 150;
+faxial = 35;            % [Hz]
+flat = 35;              % [Hz]
 
-%% From Falcon Manual
-d = 1.575;              % [m] diameter
-R = d/2;
-h = 6.4;                  % [m] heigth
-AxialLoad = 6.8;        % [g]
-LatLoad = 2.5;          % [g]
+%% 
+L = 1;                      % NS length
+R = 0.28;                   % [m] heigth
+LatLoad = 6.8;              % [g]
+AxialLoad = 2.5;            % [g]
 
 %% Alloy data (7075)
 [rho, E, Ftu, Fty, v] = materials('Al7075');
 
 %% Computation
-Aaxial = (faxial/0.25)^2/E*M*h;
-I = (flat/0.56)^2/E*M*h^3;
+Aaxial = (faxial/0.25)^2/E*M*L;
+I = (flat/0.56)^2/E*M*L^3;
 
-taxial = (2*R - sqrt(4*R^2 - 4*Aaxial/pi))/2;
+taxial = Aaxial/(2*pi*R);
 tlat = I/(pi*R^3);
 
 %% Limit Loads
 Pa = AxialLoad*M;
 Pl = LatLoad*M;
-Mb = LatLoad*h/2*M;
+Mb = LatLoad*L/2*M;
+
+t = max([tlat, taxial]);
 
 %% Equivalent Load
-Peq = Pa + 2*Mb/R;
+Asection = 2*pi*R*t;
+Peq = Pa + 2*Mb/R; 
 
 %% Tensile Strength
 
@@ -67,22 +69,20 @@ Pult = Peq*1.25;
 Pyield = Peq*1.1;
 
 % thickness according ultimate and yield loads
-tult = Pult/(Ftu*2*R*pi);
-tyield = Pyield/(Fty*2*R*pi);
+tult = Pult/(Ftu*2*pi*R);
+tyield = Pyield/(Fty*2*pi*R);
 
 %% Stability
-% sizing for higher thickness?
-phi = 1/16*sqrt(R/tlat);
-gamma = 1 - 0.901*(1 - exp(-phi));
-sigmaCR = gamma*E/(sqrt(3*(1 - v^2)))*tlat/R;
-A = pi*R^2 - pi*(R - tlat)^2;
-PCR = sigmaCR*A;
+t0 = max([t, tult, tyield]);
+[MS0] = SafetyMargin(t0, R, E, v, Pult);
 
-MS = PCR/Pult - 1;
+if MS0 < 0 
+   t = fsolve(@(t) SafetyMargin(t, R, E, v, Pult), t0);
+end
 
+[MS] = SafetyMargin(t, R, E, v, Pult);
+    
 %% Primal structure mass
-m = 2*pi*rho*h*R*tlat;
-
-
-
+t_base = t;
+m = (2*pi*L*R*t + pi*R^2*t)*rho;
 
